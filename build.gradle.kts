@@ -6,6 +6,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     id("gg.jte.gradle") version "3.2.4"
 }
+val springAiVersion by extra("2.0.0-M5")
 
 group = "com.chatting"
 version = "0.0.1-SNAPSHOT"
@@ -26,6 +27,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("gg.jte:jte-spring-boot-starter-4:3.2.4")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.springframework.ai:spring-ai-starter-model-ollama")
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
@@ -41,6 +43,11 @@ dependencies {
 kotlin {
     compilerOptions {
         freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property")
+    }
+}
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.ai:spring-ai-bom:$springAiVersion")
     }
 }
 
