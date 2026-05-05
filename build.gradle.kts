@@ -4,7 +4,7 @@ plugins {
     war
     id("org.springframework.boot") version "4.0.6"
     id("io.spring.dependency-management") version "1.1.7"
-    id("gg.jte.gradle") version "3.2.4"
+    //id("gg.jte.gradle") version "3.2.4"
 }
 val springAiVersion by extra("2.0.0-M5")
 
@@ -38,6 +38,7 @@ dependencies {
     testCompileOnly("org.projectlombok:lombok")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testAnnotationProcessor("org.projectlombok:lombok")
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 }
 
 kotlin {
@@ -51,10 +52,10 @@ dependencyManagement {
     }
 }
 
-jte {
-    generate()
-    binaryStaticContent = true
-}
+//jte {
+//    generate()
+//    binaryStaticContent = true
+//}
 
 tasks.withType<Test> {
     useJUnitPlatform()
