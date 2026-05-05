@@ -5,9 +5,17 @@
     <title>Title</title>
 </head>
 <body>
-<form name="inputMessage">
+<div>
+
+    <form th:action="@{/chat}" method="post" name="chatMessage">
     <input type="text" placeholder="Input message here">
     <button type="submit">Send</button>
 </form>
+
+</div>
+
+<div>
+
+</div>
 </body>
 </html>
