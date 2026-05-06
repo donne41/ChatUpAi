@@ -30,8 +30,21 @@ class WebService(private val chatService: chatService) {
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.toString())
             .build()
     }
+    fun getHistory(sessionId: String): List<ResponseMessage> {
+        return memoryMap.getOrDefault(sessionId, mutableListOf())
+    }
 
-    fun askAi(userPromt: MessagePromt, sessionId: String): String? {
+    fun addHistory(sessionId: String, message: ResponseMessage){
+        var history = memoryMap.computeIfAbsent(sessionId) { mutableListOf<ResponseMessage>() }
+        history.add(message)
+
+        if (history.size > 20){
+            history.removeFirst()
+        }
+    }
+
+
+    fun askAi(userPromt: MessagePromt, sessionId: String) {
         val dataRequest = DataRequest(
             model = modelName,
             messages = listOf(
@@ -45,8 +58,7 @@ class WebService(private val chatService: chatService) {
                 )
             )
         )
-        val history = memoryMap.computeIfAbsent(sessionId) { mutableListOf() }
-        history.add(ResponseMessage("user", userPromt.promt))
+        addHistory(sessionId, ResponseMessage("user", userPromt.promt))
 
 
         val dataResponse = webClient().post()
@@ -55,10 +67,7 @@ class WebService(private val chatService: chatService) {
             .retrieve()
             .body(DataResponse::class.java)
         //.body(String::class.java)
-        history.add(ResponseMessage("assistant", dataResponse?.choices?.firstOrNull()?.message?.content.toString()))
+        addHistory(sessionId,ResponseMessage("assistant", dataResponse?.choices?.firstOrNull()?.message?.content.toString()))
 
-        //return dataResponse
-        return history.last().content //probably not right. check later, push to laptop to get som sunK
-        //return dataResponse?.choices?.firstOrNull()?.message?.content ?: "Hoppsan, Fick inget svar!"
     }
 }

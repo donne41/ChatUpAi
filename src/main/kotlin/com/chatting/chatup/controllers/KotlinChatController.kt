@@ -3,6 +3,7 @@ package com.chatting.chatup.controllers
 import com.chatting.chatup.config.Memory
 import com.chatting.chatup.config.Roles
 import com.chatting.chatup.config.WebService
+import com.chatting.chatup.config.chatService
 import com.chatting.chatup.dtos.MessagePromt
 import jakarta.servlet.http.HttpSession
 import org.springframework.stereotype.Controller
@@ -22,8 +23,10 @@ class KotlinChatController(
 
     @GetMapping("/")
     fun index(
-        model: Model
+        model: Model,
+        session: HttpSession
     ): String {
+        model.addAttribute("chatHistory", webService.getHistory(session.id))
         model.addAttribute("messagePromt", MessagePromt())
         model.addAttribute("roles", Roles.values())
         model.addAttribute("memorySelect", Memory.values())
@@ -37,12 +40,11 @@ class KotlinChatController(
         model: Model,
         session: HttpSession,
     ): String {
-        var sessionId = session.id
         model.addAttribute("roles", Roles.values())
         model.addAttribute("memorySelect", Memory.values())
-        val response = webService.askAi(message)
+        webService.askAi( message, session.id)
         //println(response)
-        model.addAttribute("response", response)
+        model.addAttribute("chatHistory", webService.getHistory(session.id))
         return "chatroom"
     }
 
