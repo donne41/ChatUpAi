@@ -1,7 +1,10 @@
 package com.chatting.chatup.config
 
 
-import com.chatting.chatup.dtos.*
+import com.chatting.chatup.dtos.DataRequest
+import com.chatting.chatup.dtos.DataResponse
+import com.chatting.chatup.dtos.Message
+import com.chatting.chatup.dtos.MessagePromt
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -20,7 +23,7 @@ class WebService(private val chatService: chatService) {
     private val postUrl = "https://openrouter.ai/api/v1/chat/completions"
     private val modelName = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free"
 
-    private val memoryMap: HashMap<String, MutableList<ResponseMessage>> = HashMap()
+    private val memoryMap: HashMap<String, MutableList<Message>> = HashMap()
 
     @Bean
     fun webClient(): RestClient {
@@ -30,12 +33,12 @@ class WebService(private val chatService: chatService) {
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.toString())
             .build()
     }
-    fun getHistory(sessionId: String): List<ResponseMessage> {
+    fun getHistory(sessionId: String): List<Message> {
         return memoryMap.getOrDefault(sessionId, mutableListOf())
     }
 
-    fun addHistory(sessionId: String, message: ResponseMessage){
-        var history = memoryMap.computeIfAbsent(sessionId) { mutableListOf<ResponseMessage>() }
+    fun addHistory(sessionId: String, message: Message) {
+        var history = memoryMap.computeIfAbsent(sessionId) { mutableListOf() }
         history.add(message)
 
         if (history.size > 20){
@@ -45,29 +48,36 @@ class WebService(private val chatService: chatService) {
 
 
     fun askAi(userPromt: MessagePromt, sessionId: String) {
-        val dataRequest = DataRequest(
-            model = modelName,
-            messages = listOf(
-                Message(
-                    role = "system",
-                    content = userPromt.role.promt
-                ),
-                Message(
-                    role = "user",
-                    content = userPromt.promt
-                )
+        val previousMessages = mutableListOf<Message>()
+        previousMessages.add(
+            Message(
+                role = "system", userPromt.role.promt
             )
         )
-        addHistory(sessionId, ResponseMessage("user", userPromt.promt))
 
+        if (userPromt.memory.value > 0) {
+            val fullHistory = getHistory(sessionId)
+            val messageToFetch = minOf(fullHistory.size, userPromt.memory.value)
+            if (messageToFetch > 0) {
+                val historySlice = fullHistory.subList(fullHistory.size - messageToFetch, fullHistory.size)
+                previousMessages.addAll(historySlice)
+            }
+        }
+        previousMessages.add(Message("user", userPromt.promt))
+
+        val dataRequest = DataRequest(
+            model = modelName,
+            messages = previousMessages
+            )
+
+        addHistory(sessionId, Message("user", userPromt.promt))
+        log.info("added message to history, Current size of messages sending: " + previousMessages.size)
 
         val dataResponse = webClient().post()
             .contentType(MediaType.APPLICATION_JSON)
             .body(dataRequest)
             .retrieve()
             .body(DataResponse::class.java)
-        //.body(String::class.java)
-        addHistory(sessionId,ResponseMessage("assistant", dataResponse?.choices?.firstOrNull()?.message?.content.toString()))
-
+        addHistory(sessionId, Message("assistant", dataResponse?.choices?.firstOrNull()?.message?.content.toString()))
     }
 }

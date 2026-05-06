@@ -11,14 +11,11 @@
     <button class="login-btn" th:name="loginButton">Login</button>
 </header>
 <div class="chat-container">
-    <!--    <div class="chat-box" th:each="allMessages : ${savedmessages}">-->
     <div class="chat-box">
-        <div class="message received" th:text="${response}">Message rec</div>
         <div th:each="msg : ${chatHistory}"
              th:class="${msg.role == 'user'} ? 'message sent' : 'message recived'"
              th:text="${msg.content}">
         </div>
-        <!--        <div class="message sent" th:text="${allMessages.content}">message sent</div>-->
     </div>
     <form th:action="@{/chat}" method="post" th:object="${messagePromt}" name="chatMessage">
 
