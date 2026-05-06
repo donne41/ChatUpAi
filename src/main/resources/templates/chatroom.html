@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link th:href="@{style.css}" rel="stylesheet">
+    <script src="https://unpkg.com/htmx.org@2.0.0"></script>
 </head>
 <body>
 <header>
@@ -11,13 +12,16 @@
     <button class="login-btn" th:name="loginButton">Login</button>
 </header>
 <div class="chat-container">
-    <div class="chat-box">
+    <form hx-post="/api/v1/chat" hx-target=".chat-box" hx-swap="innerHTML" th:object="${messagePromt}">
+        <div class="chat-box" id="chatBox">
+            <div th:fragment="messageList">
         <div th:each="msg : ${chatHistory}"
              th:class="${msg.role == 'user'} ? 'message sent' : 'message recived'"
              th:text="${msg.content}">
         </div>
+            </div>
     </div>
-    <form th:action="@{/chat}" method="post" th:object="${messagePromt}" name="chatMessage">
+
 
     <div class="selectors-container">
         <select id="role-selector" th:field="*{role}">
@@ -36,9 +40,12 @@
             </option>
         </select>
     </div>
+        <div th:replace="~{chatroom :: messageList}"></div>
 
-    <div class="input-container">
-        <input th:type="text" th:field="*{promt}" class="chat-input" placeholder="Input message here">
+
+        <div class="input-container">
+            <input th:type="text" th:field="*{promt}" class="chat-input" id="messageInput"
+                   placeholder="Input message here">
         <button class="send-btn" type="submit">Send</button>
     </div>
     </form>
@@ -46,8 +53,22 @@
 
 </div>
 <span th:text="${responseMessage}"></span>
-<div>
+<script>
+    const chatBox = document.getElementById('chatBox');
+    const messageInput = document.getElementById('messageInput');
 
-</div>
+    function scrollToBottom() {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    window.onload = scrollToBottom();
+
+    document.body.addEventListener("htmx:afterSwap", function (event) {
+        if (event.detail.target.id === "chatBox") {
+            scrollToBottom();
+            messageInput.value = "";
+        }
+    });
+</script>
 </body>
 </html>

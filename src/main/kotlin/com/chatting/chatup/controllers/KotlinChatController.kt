@@ -3,7 +3,6 @@ package com.chatting.chatup.controllers
 import com.chatting.chatup.config.Memory
 import com.chatting.chatup.config.Roles
 import com.chatting.chatup.config.WebService
-import com.chatting.chatup.config.chatService
 import com.chatting.chatup.dtos.MessagePromt
 import jakarta.servlet.http.HttpSession
 import org.springframework.stereotype.Controller
@@ -11,6 +10,7 @@ import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestHeader
 
 @Controller
 class KotlinChatController(
@@ -34,17 +34,22 @@ class KotlinChatController(
     }
 
 
-    @PostMapping("/chat")
+    @PostMapping("/api/v1/chat")
     fun postMessage(
         @ModelAttribute("messagePromt") message: MessagePromt,
         model: Model,
         session: HttpSession,
+        @RequestHeader(value = "HX-Request", required = false) htmxRequest: String?
     ): String {
         model.addAttribute("roles", Roles.values())
         model.addAttribute("memorySelect", Memory.values())
+
         webService.askAi( message, session.id)
-        //println(response)
+
         model.addAttribute("chatHistory", webService.getHistory(session.id))
+        if (htmxRequest != null) {
+            return "chatroom :: messageList"
+        }
         return "chatroom"
     }
 
