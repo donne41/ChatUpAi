@@ -4,6 +4,7 @@ import com.chatting.chatup.config.Memory
 import com.chatting.chatup.config.Roles
 import com.chatting.chatup.config.WebService
 import com.chatting.chatup.dtos.MessagePromt
+import jakarta.servlet.http.HttpSession
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
@@ -33,11 +34,15 @@ class KotlinChatController(
     @PostMapping("/chat")
     fun postMessage(
         @ModelAttribute("messagePromt") message: MessagePromt,
-        model: Model
+        model: Model,
+        session: HttpSession,
     ): String {
+        var sessionId = session.id
+        model.addAttribute("roles", Roles.values())
+        model.addAttribute("memorySelect", Memory.values())
         val response = webService.askAi(message)
         //println(response)
-        model.addAttribute("responseMessage", response)
+        model.addAttribute("response", response)
         return "chatroom"
     }
 
