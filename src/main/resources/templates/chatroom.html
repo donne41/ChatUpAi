@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link th:href="@{style.css}" rel="stylesheet">
+    <script src="https://unpkg.com/htmx.org@2.0.0"></script>
+</head>
+<body>
+<header>
+    <h1>ShitChat Ai</h1>
+    <button class="login-btn" th:name="loginButton">Login</button>
+</header>
+<div class="chat-container">
+    <form hx-post="/api/v1/chat" hx-target=".chat-box" hx-swap="innerHTML" th:object="${messagePromt}">
+        <div class="chat-box" id="chatBox">
+            <div th:fragment="messageList">
+        <div th:each="msg : ${chatHistory}"
+             th:class="${msg.role == 'user'} ? 'message sent' : 'message recived'"
+             th:text="${msg.content}">
+        </div>
+            </div>
+    </div>
+
+
+    <div class="selectors-container">
+        <select id="role-selector" th:field="*{role}">
+            <option value="" disabled selected>Select role</option>
+            <option th:each="role : ${roles}"
+                    th:value="${role.name()}"
+                    th:text="${role}">
+            </option>
+        </select>
+        <select id="memory-selector" th:field="*{memory}">
+            <option value="" disabled selected>Select memory</option>
+            <option th:each="memorySize : ${memorySelect}"
+                    th:value="${memorySize.name()}"
+                    th:text="${memorySize.value}">
+
+            </option>
+        </select>
+    </div>
+        <div th:replace="~{chatroom :: messageList}"></div>
+
+
+        <div class="input-container">
+            <input th:type="text" th:field="*{promt}" class="chat-input" id="messageInput"
+                   placeholder="Input message here">
+        <button class="send-btn" type="submit">Send</button>
+    </div>
+    </form>
+
+
+</div>
+<span th:text="${responseMessage}"></span>
+<script>
+    const chatBox = document.getElementById('chatBox');
+    const messageInput = document.getElementById('messageInput');
+
+    function scrollToBottom() {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    window.onload = scrollToBottom();
+
+    document.body.addEventListener("htmx:afterSwap", function (event) {
+        if (event.detail.target.id === "chatBox") {
+            scrollToBottom();
+            messageInput.value = "";
+        }
+    });
+</script>
+</body>
+</html>

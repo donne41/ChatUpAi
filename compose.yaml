@@ -1,0 +1,18 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollamaLLM
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    entrypoint: [ "/bin/sh", "-c" ]
+    command:
+      - |
+        ollama serve &
+        sleep 5
+        ollama pull tinyllama
+        wait
+
+volumes:
+  ollama_data:
