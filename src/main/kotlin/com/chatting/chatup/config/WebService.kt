@@ -2,6 +2,7 @@ package com.chatting.chatup.config
 
 
 import com.chatting.chatup.config.chatService.*
+import com.chatting.chatup.dtos.MessagePromt
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -25,17 +26,17 @@ class WebService(private val chatService: chatService) {
             .build()
     }
 
-    fun askAi(userPromt: String): String {
+    fun askAi(userPromt: MessagePromt): String {
         val dataRequest = DataRequest(
             model = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
             messages = listOf(
                 Message(
                     role = "system",
-                    content = "You are a helpful assistant"
+                    content = userPromt.role.promt
                 ),
                 Message(
                     role = "user",
-                    content = userPromt
+                    content = userPromt.promt
                 )
             )
         )

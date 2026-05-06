@@ -3,6 +3,7 @@ package com.chatting.chatup.controllers
 import com.chatting.chatup.config.Memory
 import com.chatting.chatup.config.Roles
 import com.chatting.chatup.config.WebService
+import com.chatting.chatup.dtos.MessagePromt
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
@@ -20,10 +21,9 @@ class KotlinChatController(
 
     @GetMapping("/")
     fun index(
-        @ModelAttribute("chatMessage") message: String,
         model: Model
     ): String {
-        model.addAttribute("messagePromt", messagePromt())
+        model.addAttribute("messagePromt", MessagePromt())
         model.addAttribute("roles", Roles.values())
         model.addAttribute("memorySelect", Memory.values())
         return "chatroom"
@@ -32,7 +32,7 @@ class KotlinChatController(
 
     @PostMapping("/chat")
     fun postMessage(
-        @ModelAttribute("chatMessage") message: String,
+        @ModelAttribute("messagePromt") message: MessagePromt,
         model: Model
     ): String {
         val response = webService.askAi(message)
@@ -41,8 +41,5 @@ class KotlinChatController(
         return "chatroom"
     }
 
-    data class messagePromt(val role: Roles, val memory: Memory, val promt: String) {
-        constructor() : this(Roles.ASSISTANT, Memory.LOW, "")
-    }
 
 }

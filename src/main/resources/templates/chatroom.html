@@ -15,29 +15,32 @@
         <div class="message received" th:text="${allMessages.content}">Message rec</div>
         <div class="message sent" th:text="${allMessages.content}">message sent</div>
     </div>
+    <form th:action="@{/chat}" method="post" th:object="${messagePromt}" name="chatMessage">
 
     <div class="selectors-container">
-        <select id="role-selector">
+        <select id="role-selector" th:field="*{role}">
             <option value="" disabled selected>Select role</option>
             <option th:each="role : ${roles}"
-                    th:value="${role.getPromt()}"
+                    th:value="${role.name()}"
                     th:text="${role}">
             </option>
         </select>
-        <select id="memory-selector">
+        <select id="memory-selector" th:field="*{memory}">
             <option value="" disabled selected>Select memory</option>
             <option th:each="memorySize : ${memorySelect}"
-                    th:value="${memorySize.value}"
-                    th:text="${memorySize.value}"></option>
+                    th:value="${memorySize.name()}"
+                    th:text="${memorySize.value}">
+
+            </option>
         </select>
     </div>
 
     <div class="input-container">
-    <form th:action="@{/chat}" method="post" name="chatMessage">
-        <input th:type="field" class="chat-input" placeholder="Input message here">
+        <input th:type="text" th:field="*{promt}" class="chat-input" placeholder="Input message here">
         <button class="send-btn" type="submit">Send</button>
-    </form>
     </div>
+    </form>
+
 
 </div>
 <span th:text="${responseMessage}"></span>
