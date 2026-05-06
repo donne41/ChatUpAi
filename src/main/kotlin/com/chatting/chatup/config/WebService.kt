@@ -27,7 +27,7 @@ class WebService(private val chatService: chatService) {
 
     fun askAi(userPromt: String): String {
         val dataRequest = DataRequest(
-            model = "openrouter/free",
+            model = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
             messages = listOf(
                 Message(
                     role = "system",

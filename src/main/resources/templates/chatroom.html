@@ -3,14 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link th:href="@{style.css}" rel="stylesheet">
 </head>
 <body>
-<div>
+<header>
+    <h1>ShitChat Ai</h1>
+    <button class="login-btn" th:name="loginButton">Login</button>
+</header>
+<div class="chat-container">
+    <div class="chat-box" th:each="allMessages : ${savedmessages}">
+        <div class="message received" th:text="${allMessages.content}">Message rec</div>
+        <div class="message sent" th:text="${allMessages.content}">message sent</div>
+    </div>
 
+    <div class="selectors-container">
+        <select id="role-selector">
+            <option value="" disabled selected>Select role</option>
+            <option th:each="role : ${roles}"
+                    th:value="${role.getPromt()}"
+                    th:text="${role}">
+            </option>
+        </select>
+        <select id="memory-selector">
+            <option value="" disabled selected>Select memory</option>
+            <option th:each="memorySize : ${memorySelect}"
+                    th:value="${memorySize.value}"
+                    th:text="${memorySize.value}"></option>
+        </select>
+    </div>
+
+    <div class="input-container">
     <form th:action="@{/chat}" method="post" name="chatMessage">
-    <input type="text" placeholder="Input message here">
-    <button type="submit">Send</button>
-</form>
+        <input th:type="field" class="chat-input" placeholder="Input message here">
+        <button class="send-btn" type="submit">Send</button>
+    </form>
+    </div>
 
 </div>
 <span th:text="${responseMessage}"></span>
