@@ -12,42 +12,46 @@
     <button class="login-btn" th:name="loginButton">Login</button>
 </header>
 <div class="chat-container">
-    <form hx-post="/api/v1/chat" hx-target=".chat-box" hx-swap="innerHTML" th:object="${messagePromt}">
+    <form id="formchat" hx-post="/api/v1/chat" hx-target=".chat-box" hx-swap="innerHTML" th:object="${messagePromt}">
         <div class="chat-box" id="chatBox">
-            <div th:fragment="messageList">
-        <div th:each="msg : ${chatHistory}"
-             th:class="${msg.role == 'user'} ? 'message sent' : 'message recived'"
-             th:text="${msg.content}">
+            <th:block th:fragment="messageList">
+                <div th:each="msg : ${chatHistory}"
+                     th:class="${msg.role == 'user'} ? 'message sent' : 'message received'"
+                     th:text="${msg.content}">
+                </div>
+            </th:block>
         </div>
+
+
+        <div class="selectors-container">
+            <div class="selector-group">
+                <label for="role-selector">Personality</label>
+                <select id="role-selector" th:field="*{role}">
+                    <option th:each="role : ${roles}"
+                            th:value="${role.name()}"
+                            th:text="${role}">
+                    </option>
+                </select>
             </div>
-    </div>
+            <div class="selector-group">
+                <label for="memory-selector">Memory size</label>
+                <select id="memory-selector" th:field="*{memory}">
+                    <option th:each="memorySize : ${memorySelect}"
+                            th:value="${memorySize.name()}"
+                            th:text="${memorySize.value}">
 
-
-    <div class="selectors-container">
-        <select id="role-selector" th:field="*{role}">
-            <option value="" disabled selected>Select role</option>
-            <option th:each="role : ${roles}"
-                    th:value="${role.name()}"
-                    th:text="${role}">
-            </option>
-        </select>
-        <select id="memory-selector" th:field="*{memory}">
-            <option value="" disabled selected>Select memory</option>
-            <option th:each="memorySize : ${memorySelect}"
-                    th:value="${memorySize.name()}"
-                    th:text="${memorySize.value}">
-
-            </option>
-        </select>
-    </div>
+                    </option>
+                </select>
+            </div>
+        </div>
         <div th:replace="~{chatroom :: messageList}"></div>
 
 
         <div class="input-container">
             <input th:type="text" th:field="*{promt}" class="chat-input" id="messageInput"
                    placeholder="Input message here">
-        <button class="send-btn" type="submit">Send</button>
-    </div>
+            <button class="send-btn" type="submit">Send</button>
+        </div>
     </form>
 
 
