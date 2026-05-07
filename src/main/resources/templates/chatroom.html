@@ -9,7 +9,7 @@
 <body>
 <header>
     <h1>ShitChat Ai</h1>
-    <button class="login-btn" th:name="loginButton">Login</button>
+    <!--    <button class="login-btn" th:name="loginButton">Login</button>-->
 </header>
 <div class="chat-container">
     <form id="formchat" hx-post="/api/v1/chat" hx-target=".chat-box" hx-swap="innerHTML" th:object="${messagePromt}">
