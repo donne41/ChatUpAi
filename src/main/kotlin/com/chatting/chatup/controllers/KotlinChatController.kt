@@ -1,9 +1,9 @@
 package com.chatting.chatup.controllers
 
-import com.chatting.chatup.config.Memory
-import com.chatting.chatup.config.Roles
 import com.chatting.chatup.config.WebService
 import com.chatting.chatup.dtos.MessagePromt
+import com.chatting.chatup.enums.Memory
+import com.chatting.chatup.enums.Roles
 import jakarta.servlet.http.HttpSession
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
