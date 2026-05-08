@@ -12,7 +12,8 @@
     <!--    <button class="login-btn" th:name="loginButton">Login</button>-->
 </header>
 <div class="chat-container">
-    <form id="formchat" hx-post="/api/v1/chat" hx-target=".chat-box" hx-swap="innerHTML" th:object="${messagePromt}">
+
+    <form id="formchat" hx-post="/api/v1/chat" hx-target="#chatBox" hx-swap="innerHTML" th:object="${messagePromt}">
         <div class="chat-box" id="chatBox">
             <th:block th:fragment="messageList">
                 <div th:each="msg : ${chatHistory}"
@@ -44,7 +45,6 @@
                 </select>
             </div>
         </div>
-        <div th:replace="~{chatroom :: messageList}"></div>
 
 
         <div class="input-container">
@@ -52,9 +52,16 @@
                    placeholder="Input message here">
             <button class="send-btn" type="submit">Send</button>
         </div>
+        <div id="error-container" th:fragment="errorBlock" hx-swap-oob="true" th:object="${messagePromt}">
+            <span th:if="${#fields.hasErrors('promt')}" th:errors="*{promt}"></span>
+            <span th:if="${errorMessage != null}" th:text="${errorMessage}"></span>
+        </div>
     </form>
 
 
+</div>
+<div th:if="${errorMessage != null}">
+    <span th:errors="${errorMessage}"></span>
 </div>
 <span th:text="${responseMessage}"></span>
 <script>

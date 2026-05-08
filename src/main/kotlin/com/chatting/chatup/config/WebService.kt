@@ -5,6 +5,8 @@ import com.chatting.chatup.dtos.DataRequest
 import com.chatting.chatup.dtos.DataResponse
 import com.chatting.chatup.dtos.Message
 import com.chatting.chatup.dtos.MessagePromt
+import com.chatting.chatup.exceptions.ApiServiceException
+import com.chatting.chatup.exceptions.ClientSideException
 import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
@@ -18,7 +20,6 @@ class WebService(
 
     private val log = LoggerFactory.getLogger(this::class.java)
     private val modelName = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free"
-
 
 
     fun askAi(userPromt: MessagePromt, sessionId: String) {
@@ -42,22 +43,29 @@ class WebService(
         val dataRequest = DataRequest(
             model = modelName,
             messages = previousMessages
-            )
+        )
 
         memoryService.addHistory(sessionId, Message("user", userPromt.promt))
 
-        try {
-            val dataResponse = webClient.post()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(dataRequest)
-                .retrieve()
-                .body(DataResponse::class.java)
-            memoryService.addHistory(
-                sessionId,
-                Message("assistant", dataResponse?.choices?.firstOrNull()?.message?.content.toString())
+        val dataResponse = webClient.post()
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(dataRequest)
+            .retrieve()
+            .onStatus({ status -> status.is4xxClientError }) { request, response ->
+                throw ClientSideException(response.statusText)
+            }
+            .onStatus({ status -> status.is5xxServerError }) { request, response ->
+                throw ApiServiceException("Ai server error: " + response.statusText)
+            }
+            .body(DataResponse::class.java)
+        memoryService.addHistory(
+            sessionId,
+            Message("assistant",
+                dataResponse?.choices?.firstOrNull()?.message?.content
+                    ?: "Sorry, i could not generate a answer on that."
             )
+        )
 
-        } catch ()
 
     }
 }
