@@ -48,7 +48,7 @@ class KotlinChatController(
         model.addAttribute("roles", Roles.values())
         model.addAttribute("memorySelect", Memory.values())
         if (result.hasErrors()) {
-            LOG.error("input promt has errors: {}", result.fieldError?.field)
+            LOG.error("input promt has errors: {}", result.fieldError)
             return "chatroom :: errorBlock"
         }
 

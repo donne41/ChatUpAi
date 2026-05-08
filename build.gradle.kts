@@ -4,9 +4,9 @@ plugins {
     war
     id("org.springframework.boot") version "4.0.6"
     id("io.spring.dependency-management") version "1.1.7"
-    //id("gg.jte.gradle") version "3.2.4"
 }
 val springAiVersion by extra("2.0.0-M5")
+val springCloudVersion by extra("2025.1.1")
 
 group = "com.chatting"
 version = "0.0.1-SNAPSHOT"
@@ -39,6 +39,8 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testAnnotationProcessor("org.projectlombok:lombok")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+    testImplementation("org.assertj:assertj-core:")
+    testImplementation("org.wiremock.integrations:wiremock-spring-boot:4.2.1")
 }
 
 kotlin {
@@ -49,6 +51,7 @@ kotlin {
 dependencyManagement {
     imports {
         mavenBom("org.springframework.ai:spring-ai-bom:$springAiVersion")
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
     }
 }
 
