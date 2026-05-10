@@ -6,12 +6,16 @@ import com.chatting.chatup.dtos.Message
 import com.chatting.chatup.dtos.MessagePromt
 import com.chatting.chatup.enums.Memory
 import com.chatting.chatup.enums.Roles
+import com.chatting.chatup.exceptions.ApiServiceException
+import com.chatting.chatup.exceptions.ClientSideException
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.assertj.core.api.AssertionsForClassTypes.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.wiremock.spring.EnableWireMock
+import java.util.*
 
 
 @SpringBootTest(
@@ -24,7 +28,7 @@ import org.wiremock.spring.EnableWireMock
 @EnableWireMock
 class WebServiceTest(
     @Autowired val service: WebService,
-    @Autowired val memory: MemoryService
+    @Autowired val memory: MemoryService,
 
 ) {
 
@@ -71,16 +75,42 @@ class WebServiceTest(
     @Test
     fun postWithMemoryShouldBeWithCorrectMemory() {
         val sessionId = "session.id2"
-        memory.addHistory(sessionId, Message(role = "user", "one"))
-        memory.addHistory(sessionId, Message(role = "user", "two"))
-        memory.addHistory(sessionId, Message(role = "user", "three"))
-        memory.addHistory(sessionId, Message(role = "user", "four"))
-        memory.addHistory(sessionId, Message(role = "user", "five"))
-        memory.addHistory(sessionId, Message(role = "user", "six"))
-        memory.addHistory(sessionId, Message(role = "user", "seven"))
-        memory.addHistory(sessionId, Message(role = "user", "eight"))
-        memory.addHistory(sessionId, Message(role = "user", "nine"))
-        memory.addHistory(sessionId, Message(role = "user", "ten"))
+
+        val fakeMessage = MessagePromt(
+            Roles.ASSISTANT,
+            Memory.LOW,
+            "test"
+        )
+        memory.addHistory(sessionId, Message("user", "test"))
+
+        val result = service.buildDataRequest(fakeMessage, memory.getHistory(sessionId))
+
+        assertThat(result.messages.first().role).isEqualTo("system")
+        assertThat(result.messages.first().content).isEqualTo(Roles.ASSISTANT.promt)
+
+        assertThat(result.messages.size).isEqualTo(3)
+    }
+
+    @Test
+    fun postCheckWithMemoryBetweenCalls() {
+        val lastSessionId = "session.id2"
+        val sessionId = "session.id3"
+        val fakeMessage = MessagePromt(
+            Roles.ASSISTANT,
+            Memory.LOW,
+            "test"
+        )
+
+        val result1 = service.buildDataRequest(fakeMessage, memory.getHistory(sessionId))
+        val result2 = service.buildDataRequest(fakeMessage, memory.getHistory(lastSessionId))
+        assertThat(result1.messages.size).isEqualTo(2)
+        assertThat(result2.messages.size).isEqualTo(3)
+
+    }
+
+    @Test
+    fun postWith400ErrorthrowsException() {
+        val sessionid = UUID.randomUUID().toString()
 
         val fakeMessage = MessagePromt(
             Roles.ASSISTANT,
@@ -91,25 +121,34 @@ class WebServiceTest(
         stubFor(
             post(urlEqualTo("/"))
                 .willReturn(
-                    aResponse().withStatus(200)
-                        .withHeader("Content-Type", "application/json")
-                        .withBody(
-                            """
-                        {
-                        "choices": [
-                        {
-                        "message": {
-                        "role": "assistant",
-                        "content": "test response"
-                        }}]}
-                    """.trimIndent()
-                        )
+                    status(401)
+                        .withStatusMessage("Unauthorized")
                 )
         )
 
-        service.askAi(fakeMessage, sessionId)
+        val ex = assertThrows<ClientSideException> { service.askAi(fakeMessage, sessionid) }
 
-        val result = memory.getHistory(sessionId)
-        assertThat(result.size).isEqualTo(12)
+        assertThat(ex.message).isEqualTo("Unauthorized")
+
+    }
+
+    @Test
+    fun postWith500ErrorThrowsException() {
+        val sessionid = UUID.randomUUID().toString()
+
+        val fakeMessage = MessagePromt(
+            Roles.ASSISTANT,
+            Memory.LOW,
+            "test"
+        )
+
+        stubFor(
+            post(urlEqualTo("/"))
+                .willReturn(status(500))
+        )
+
+        val ex = assertThrows<ApiServiceException> { service.askAi(fakeMessage, sessionid) }
+
+        assertThat(ex.message).isEqualTo("Ai server error: Server Error")
     }
 }

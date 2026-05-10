@@ -21,7 +21,7 @@ class WebService(
 
     private val log = LoggerFactory.getLogger(this::class.java)
 
-    fun buildDataRequest(userPromt: MessagePromt, sessionId: String): DataRequest {
+    fun buildDataRequest(userPromt: MessagePromt, history: List<Message>): DataRequest {
         val previousMessages = mutableListOf<Message>()
         previousMessages.add(
             Message(
@@ -30,10 +30,9 @@ class WebService(
         )
 
         if (userPromt.memory.value > 0) {
-            val fullHistory = memoryService.getHistory(sessionId)
-            val messageToFetch = minOf(fullHistory.size, userPromt.memory.value)
+            val messageToFetch = minOf(history.size, userPromt.memory.value)
             if (messageToFetch > 0) {
-                val historySlice = fullHistory.subList(fullHistory.size - messageToFetch, fullHistory.size)
+                val historySlice = history.subList(history.size - messageToFetch, history.size)
                 previousMessages.addAll(historySlice)
             }
         }
@@ -47,7 +46,8 @@ class WebService(
 
     fun askAi(userPromt: MessagePromt, sessionId: String) {
 
-        val dataRequest = buildDataRequest(userPromt, sessionId)
+        val history = memoryService.getHistory(sessionId)
+        val dataRequest = buildDataRequest(userPromt, history)
 
         memoryService.addHistory(sessionId, Message("user", userPromt.promt))
 
@@ -66,7 +66,6 @@ class WebService(
                 throw ApiServiceException("Ai server error: " + response.statusText)
             }
             .body(DataResponse::class.java)
-        println(dataResponse)
         memoryService.addHistory(
             sessionId,
             Message("assistant",
@@ -74,7 +73,6 @@ class WebService(
                     ?: "Sorry, i could not generate a answer on that."
             )
         )
-
 
     }
 }
