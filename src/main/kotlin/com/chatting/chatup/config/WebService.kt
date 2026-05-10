@@ -56,16 +56,26 @@ class WebService(
             .body(dataRequest)
             .retrieve()
             .onStatus({ status -> status.is4xxClientError }) { request, response ->
-                val errorBody = response.body.bufferedReader().use { it.readText() }
-                log.error("Error from client, answer: {}", errorBody)
-                throw ClientSideException(response.statusText)
+                val errorMessage = when (response.statusCode.value()) {
+                    400 -> "Malformated request, try again"
+                    401 -> "Unauthorized, Check API key"
+                    429 -> "Too many requests, try again later"
+                    else -> "Unexpected client side error (${response.statusCode.value()})"
+                }
+                log.error("Error from client, answer: {}", errorMessage)
+                throw ClientSideException(errorMessage)
             }
             .onStatus({ status -> status.is5xxServerError }) { request, response ->
-                val errorBody = response.body.bufferedReader().use { it.readText() }
-                log.error("Error from server, answer: {}", errorBody)
-                throw ApiServiceException("Ai server error: " + response.statusText)
+                val errorMessage = when (response.statusCode.value()) {
+                    503 -> "Ai service is temporarily down, try again later"
+                    504 -> "Too to long to respond, try shorter promt"
+                    else -> "Unexpected Server side error (${response.statusCode.value()})"
+                }
+                log.error("Error from server, answer: {}", errorMessage)
+                throw ApiServiceException(errorMessage)
             }
             .body(DataResponse::class.java)
+
         memoryService.addHistory(
             sessionId,
             Message("assistant",

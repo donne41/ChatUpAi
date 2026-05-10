@@ -11,6 +11,12 @@
     <h1>ShitChat Ai</h1>
     <!--    <button class="login-btn" th:name="loginButton">Login</button>-->
 </header>
+
+<div th:fragment="exceptionBlock" id="error-display" hx-swap-oob="true">
+    <div th:if="${errorMessage != null}" class="error-banner">
+        <p th:text="${errorMessage}"></p>
+    </div>
+</div>
 <div class="chat-container">
 
     <form id="formchat" hx-post="/api/v1/chat" hx-target="#chatBox" hx-swap="innerHTML" th:object="${messagePromt}">
@@ -78,6 +84,12 @@
         if (event.detail.target.id === "chatBox") {
             scrollToBottom();
             messageInput.value = "";
+        }
+    });
+    document.body.addEventListener('htmx:beforeOnLoad', function (evt) {
+        if (evt.detail.xhr.status >= 400) {
+            evt.detail.shouldSwap = true;
+            evt.detail.isError = false;
         }
     });
 </script>

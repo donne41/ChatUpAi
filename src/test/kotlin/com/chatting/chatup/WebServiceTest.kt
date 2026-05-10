@@ -122,13 +122,12 @@ class WebServiceTest(
             post(urlEqualTo("/"))
                 .willReturn(
                     status(401)
-                        .withStatusMessage("Unauthorized")
                 )
         )
 
         val ex = assertThrows<ClientSideException> { service.askAi(fakeMessage, sessionid) }
 
-        assertThat(ex.message).isEqualTo("Unauthorized")
+        assertThat(ex.message).isEqualTo("Unauthorized, Check API key")
 
     }
 
@@ -149,6 +148,6 @@ class WebServiceTest(
 
         val ex = assertThrows<ApiServiceException> { service.askAi(fakeMessage, sessionid) }
 
-        assertThat(ex.message).isEqualTo("Ai server error: Server Error")
+        assertThat(ex.message).isEqualTo("Unexpected Server side error (500)")
     }
 }
