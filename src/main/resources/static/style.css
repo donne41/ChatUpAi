@@ -188,3 +188,9 @@ label {
 .send-btn:hover {
     background-color: #1a3e85;
 }
+
+#error-container {
+    color: red;
+    font-size: 0.8em;
+    margin-top: 5px;
+}

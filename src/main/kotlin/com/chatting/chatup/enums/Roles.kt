@@ -1,4 +1,4 @@
-package com.chatting.chatup.config
+package com.chatting.chatup.enums
 
 enum class Roles(val promt: String) {
     SCOTT(
