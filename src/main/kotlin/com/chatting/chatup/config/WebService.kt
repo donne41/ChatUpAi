@@ -15,11 +15,11 @@ import org.springframework.web.client.RestClient
 @Service
 class WebService(
     private val memoryService: MemoryService,
-    private val webClient: RestClient
+    private val webClient: RestClient,
+    private val chatProperties: ChatProperties
 ) {
 
     private val log = LoggerFactory.getLogger(this::class.java)
-    private val modelName = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free"
 
 
     fun askAi(userPromt: MessagePromt, sessionId: String) {
@@ -41,7 +41,7 @@ class WebService(
         previousMessages.add(Message("user", userPromt.promt))
 
         val dataRequest = DataRequest(
-            model = modelName,
+            model = chatProperties.modelName,
             messages = previousMessages
         )
 
@@ -52,12 +52,17 @@ class WebService(
             .body(dataRequest)
             .retrieve()
             .onStatus({ status -> status.is4xxClientError }) { request, response ->
+                val errorBody = response.body.bufferedReader().use { it.readText() }
+                log.error("Error from client, answer: {}", errorBody)
                 throw ClientSideException(response.statusText)
             }
             .onStatus({ status -> status.is5xxServerError }) { request, response ->
+                val errorBody = response.body.bufferedReader().use { it.readText() }
+                log.error("Error from server, answer: {}", errorBody)
                 throw ApiServiceException("Ai server error: " + response.statusText)
             }
             .body(DataResponse::class.java)
+        println(dataResponse)
         memoryService.addHistory(
             sessionId,
             Message("assistant",
