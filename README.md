@@ -20,14 +20,18 @@ creative content, and streamlining daily tasks through intelligent interaction.
 
 ## ✨ Features
 
-- Api for ai chat
-- Testing
+- Different personalites: Scottish, Helpful assistant, even Yoda!
+- Custom memory size with each promt, None, 10 or last 20 messages.
+- Helpful error messages in case something goes wrong.
 
 ## 🛠️ Tech Stack
 
 - Kotlin
+- Gradle
 - Htmx
 - javaScript
+- Spring Boot 4.0.6
+- Java 21
 
 ---
 

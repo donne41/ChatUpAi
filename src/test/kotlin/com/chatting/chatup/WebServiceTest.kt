@@ -1,13 +1,13 @@
 package com.chatting.chatup
 
-import com.chatting.chatup.config.MemoryService
-import com.chatting.chatup.config.WebService
 import com.chatting.chatup.dtos.Message
 import com.chatting.chatup.dtos.MessagePromt
 import com.chatting.chatup.enums.Memory
 import com.chatting.chatup.enums.Roles
 import com.chatting.chatup.exceptions.ApiServiceException
 import com.chatting.chatup.exceptions.ClientSideException
+import com.chatting.chatup.service.MemoryService
+import com.chatting.chatup.service.WebService
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.assertj.core.api.AssertionsForClassTypes.assertThat
 import org.junit.jupiter.api.Test

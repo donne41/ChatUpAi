@@ -1,10 +1,10 @@
 package com.chatting.chatup.controllers
 
-import com.chatting.chatup.config.MemoryService
-import com.chatting.chatup.config.WebService
 import com.chatting.chatup.dtos.MessagePromt
 import com.chatting.chatup.enums.Memory
 import com.chatting.chatup.enums.Roles
+import com.chatting.chatup.service.MemoryService
+import com.chatting.chatup.service.WebService
 import jakarta.servlet.http.HttpSession
 import jakarta.validation.Valid
 import org.slf4j.LoggerFactory

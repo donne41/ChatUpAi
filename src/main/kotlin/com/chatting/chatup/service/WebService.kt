@@ -1,6 +1,7 @@
-package com.chatting.chatup.config
+package com.chatting.chatup.service
 
 
+import com.chatting.chatup.config.ChatProperties
 import com.chatting.chatup.dtos.DataRequest
 import com.chatting.chatup.dtos.DataResponse
 import com.chatting.chatup.dtos.Message

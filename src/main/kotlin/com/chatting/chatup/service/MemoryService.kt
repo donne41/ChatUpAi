@@ -1,11 +1,12 @@
-package com.chatting.chatup.config
+package com.chatting.chatup.service
 
 import com.chatting.chatup.dtos.Message
 import org.springframework.stereotype.Service
+import java.util.concurrent.ConcurrentHashMap
 
 @Service
 class MemoryService {
-    private val memoryMap: HashMap<String, MutableList<Message>> = HashMap()
+    private val memoryMap: ConcurrentHashMap<String, MutableList<Message>> = ConcurrentHashMap()
 
     fun getHistory(sessionId: String): List<Message> {
         return memoryMap.getOrDefault(sessionId, mutableListOf())
