@@ -46,7 +46,6 @@ git clone https://github.com/donne41/ChatUpAi.git
 
 # Install dependencies and run
 
-# (See Development Setup below)
 ```
 
 2.
