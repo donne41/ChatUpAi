@@ -21,8 +21,7 @@ class WebService(
 
     private val log = LoggerFactory.getLogger(this::class.java)
 
-
-    fun askAi(userPromt: MessagePromt, sessionId: String) {
+    fun buildDataRequest(userPromt: MessagePromt, sessionId: String): DataRequest {
         val previousMessages = mutableListOf<Message>()
         previousMessages.add(
             Message(
@@ -40,10 +39,15 @@ class WebService(
         }
         previousMessages.add(Message("user", userPromt.promt))
 
-        val dataRequest = DataRequest(
+        return DataRequest(
             model = chatProperties.modelName,
             messages = previousMessages
         )
+    }
+
+    fun askAi(userPromt: MessagePromt, sessionId: String) {
+
+        val dataRequest = buildDataRequest(userPromt, sessionId)
 
         memoryService.addHistory(sessionId, Message("user", userPromt.promt))
 
