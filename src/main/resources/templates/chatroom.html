@@ -9,7 +9,6 @@
 <body>
 <header>
     <h1>ShitChat Ai</h1>
-    <!--    <button class="login-btn" th:name="loginButton">Login</button>-->
 </header>
 
 <div th:fragment="exceptionBlock" id="error-display" hx-swap-oob="true">
@@ -19,7 +18,11 @@
 </div>
 <div class="chat-container">
 
-    <form id="formchat" hx-post="/api/v1/chat" hx-target="#chatBox" hx-swap="innerHTML" th:object="${messagePromt}">
+    <form id="formchat" hx-post="/api/v1/chat" hx-target="#chatBox"
+          hx-swap="innerHTML"
+          th:object="${messagePromt}"
+          hx-indicator="#ai-status"
+          hx-disabled-elt=".send-btn, .chat-input">
         <div class="chat-box" id="chatBox">
             <th:block th:fragment="messageList">
                 <div th:each="msg : ${chatHistory}"
@@ -27,6 +30,9 @@
                      th:text="${msg.content}">
                 </div>
             </th:block>
+        </div>
+        <div id="ai-status" class="htmx-indicator">
+            <span class="ai-loading">Loading ...</span>
         </div>
 
 
@@ -69,7 +75,6 @@
 <div th:if="${errorMessage != null}">
     <span th:errors="${errorMessage}"></span>
 </div>
-<span th:text="${responseMessage}"></span>
 <script>
     const chatBox = document.getElementById('chatBox');
     const messageInput = document.getElementById('messageInput');

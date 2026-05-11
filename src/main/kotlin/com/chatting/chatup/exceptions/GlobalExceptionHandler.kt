@@ -1,5 +1,6 @@
 package com.chatting.chatup.exceptions
 
+import io.netty.handler.timeout.ReadTimeoutException
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -16,6 +17,12 @@ class GlobalExceptionHandler {
     @ExceptionHandler(ApiServiceException::class)
     fun handleServiceError(error: ApiServiceException, model: Model): String {
         model.addAttribute("errorMessage", error.message)
+        return "chatroom :: exceptionBlock"
+    }
+
+    @ExceptionHandler(ReadTimeoutException::class)
+    fun handleReadTimeoutError(e: ReadTimeoutException, model: Model): String {
+        model.addAttribute("errorMessage", "Timeout reached")
         return "chatroom :: exceptionBlock"
     }
 }
