@@ -10,4 +10,5 @@ class ChatProperties {
     lateinit var baseUrl: String
     lateinit var modelName: String
 
+
 }
