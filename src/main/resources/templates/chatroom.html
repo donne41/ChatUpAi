@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"/>
     <title>Title</title>
     <link th:href="@{/chatup/style.css}" rel="stylesheet">
     <script src="https://unpkg.com/htmx.org@2.0.0"></script>
+    <div th:if="${_csrf}" style="display: none">
+        <span th:text="${_csrf.token}"></span>
+    </div>
 </head>
 <body>
 <header>
@@ -82,6 +85,14 @@
     function scrollToBottom() {
         chatBox.scrollTop = chatBox.scrollHeight;
     }
+    document.body.addEventListener('htmx:configRequest', (event) => {
+        const token = getCsrfToken();
+        console.log("TOKEN: ", token);
+        if(token){
+            event.detail.headers['X-XSRF-TOKEN'] = token;
+        }
+        event.detail.withCredentials = true;
+    });
 
     window.onload = scrollToBottom();
 
@@ -97,6 +108,12 @@
             evt.detail.isError = false;
         }
     });
+    function getCsrfToken() {
+        const value = `; ${document.cookie}`;
+        const parts = value.split('; XSRF-TOKEN=');
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return '';
+    }
 </script>
 </body>
 </html>
